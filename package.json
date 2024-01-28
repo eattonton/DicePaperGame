@@ -1,0 +1,16 @@
+{
+  "name": "DicePaperGame",
+  "version": "1.0.0",
+  "description": "Dice and Paper game.骰笔游戏",
+  "main": "index.js",
+  "scripts": {
+    "start": "parcel src/index.html",
+    "build": "parcel build src/index.html"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "parcel-bundler": "^1.12.5"
+  }
+}

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>骰笔游戏</title>
+    <script src="./index.js"></script>
+    <style>
+        body{
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: medium;
+            width: 90%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .title{
+            text-align: center;
+        }
+        .lineItem{
+            display: flex;
+            flex-direction: row;
+            justify-content: space-evenly;
+        }
+        .itemResult{
+            line-height: 100px;
+        }
+        .addBtn{
+            line-height: 40px;
+            text-align: center;
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 12px;
+        }
+
+        #startBtn{
+            background-color: deepskyblue;
+        }
+
+        .humanContainer{
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        .humanContainer span{
+            border: 1px solid #ddd;
+            display: block;
+            width: 120px;
+            line-height: 30px;
+            text-align: center;
+        }
+
+        .humanContainer span.active{
+            background-color:deepskyblue;
+        }
+
+        .diceImg{
+            width: 100px;
+            height: 100px;
+        }
+    </style>
+</head>
+<body>
+<div>
+    <div class="title">
+        <h2>骰子模拟器</h2>
+    </div>
+    <div>
+
+    </div>
+    <div id="diceContainer">
+        <div class="lineItem">
+            <div><canvas id="dice0" class="diceImg"></canvas></div>
+            <div id="diceNum0" class="itemResult">骰子1&nbsp;=</div>
+        </div>
+
+    </div>
+    <div>
+        <div id="addLineBtn" class="addBtn">+添加骰子</div>
+    </div>
+    <div>
+        <div>玩家人数:</div>
+        <div class="lineItem humanContainer">
+            <span value="1" class="btnSel active">1人</span>
+            <span value="2" class="btnSel">2人</span>
+            <span value="3" class="btnSel">3人</span>
+            <span value="4" class="btnSel">4人</span>
+            <span value="5" class="btnSel">5人</span>
+        </div>
+    </div>
+    <div>
+        <div id="startBtn" class="addBtn">开&nbsp;&nbsp;始</div>
+    </div>
+    <br/>
+    <div>
+        <div id="player">
+            当前玩家：
+        </div>
+        <div id="total">
+            合计点数：
+        </div>
+    </div>
+    <div style="margin-top: 40px;">
+        <ul>
+            <li>程序完全免费，不含任何广告，欢迎分享。</li>
+            <li>当前版本 v1.0</li>
+            <li>微信公众号:"二头乌游戏"</li>
+            <li>email: eattonton@qq.com</li>
+            <li>Supported By TriWeb.cn</li>
+        </ul>
+    </div>
+</div>
+
+    <canvas id="canvas1" style="display: none;"></canvas>
+    <audio id="music" style="display: none;"></audio>
+</body>
+</html>
