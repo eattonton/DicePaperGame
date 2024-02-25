@@ -117,58 +117,170 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"../node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
-var bundleURL = null;
-function getBundleURLCached() {
-  if (!bundleURL) {
-    bundleURL = getBundleURL();
+})({"assets/dice.png":[function(require,module,exports) {
+module.exports = "/dice.34e9cd0b.png";
+},{}],"assets/dice_on_desk.mp3":[function(require,module,exports) {
+module.exports = "/dice_on_desk.6a7c7740.mp3";
+},{}],"game/dice.js":[function(require,module,exports) {
+"use strict";
+
+var _dice = _interopRequireDefault(require("../assets/dice.png"));
+var _dice_on_desk = _interopRequireDefault(require("../assets/dice_on_desk.mp3"));
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+//封装选择器
+function $(name) {
+  //return document.querySelector(name);
+  var eles = document.querySelectorAll(name);
+  if (eles.length == 1) {
+    return eles[0];
   }
-  return bundleURL;
+  return eles;
 }
-function getBundleURL() {
-  // Attempt to find the URL of the current script and use that as the base URL
-  try {
-    throw new Error();
-  } catch (err) {
-    var matches = ('' + err.stack).match(/(https?|file|ftp|chrome-extension|moz-extension):\/\/[^)\n]+/g);
-    if (matches) {
-      return getBaseURL(matches[0]);
+var m_imgDatas = [];
+var m_diceNumber = 1;
+var m_humanTotal = 1;
+//var m_humanCurrent = 0;
+var m_rollTimes = 0;
+var m_scoreTotal = 0;
+window.onload = function () {
+  var buttons = $('.btnSel');
+  buttons.forEach(function (btn) {
+    return btn.onclick = function () {
+      SelectHumanNum(btn);
+    };
+  });
+  var canvas = $("#canvas1");
+  var ctx = canvas.getContext("2d");
+  var img1 = new Image();
+  img1.src = _dice.default;
+  img1.onload = function () {
+    canvas.width = img1.width;
+    canvas.height = img1.height;
+    ctx.drawImage(img1, 0, 0, img1.width, img1.height);
+    // 提取部分图像，例如左上角 100x100 像素的区域
+    m_imgDatas = GetImages(ctx, 100, 100);
+    AddImage(0, m_imgDatas[0]);
+  };
+
+  //添加btn事件
+  $("#startBtn").onclick = function () {
+    m_scoreTotal = 0;
+    for (var i = 0; i < m_diceNumber; i++) {
+      AddAnimation(i, m_imgDatas, [6, 7, 8], ShowDiceResult);
+    }
+    $("#music").play();
+    $('#player').textContent = "\u5F53\u524D\u73A9\u5BB6\uFF1A".concat(m_rollTimes % m_humanTotal + 1, " \u53F7");
+    ++m_rollTimes;
+  };
+  $("#addLineBtn").onclick = function () {
+    AddDiceLine(m_diceNumber++);
+  };
+
+  //添加声音
+  $("#music").src = _dice_on_desk.default;
+};
+
+/**
+ * 
+ * @param {CanvasRenderingContext2D} ctx 
+ * @param {number} sw 
+ * @param {number} sh 
+ */
+function GetImages(ctx, sw, sh) {
+  var imgDatas = [];
+  for (var sx = 0; sx < ctx.canvas.width; sx += sw) {
+    for (var sy = 0; sy < ctx.canvas.height; sy += sh) {
+      var imgData = ctx.getImageData(sx, sy, sw, sh);
+      imgDatas.push(imgData);
     }
   }
-  return '/';
+  return imgDatas;
 }
-function getBaseURL(url) {
-  return ('' + url).replace(/^((?:https?|file|ftp|chrome-extension|moz-extension):\/\/.+)?\/[^/]+(?:\?.*)?$/, '$1') + '/';
+
+/**
+ * 插入一个Sprite
+ * @param {number} idx 
+ * @param {ImageData} imgData 
+ */
+function AddImage(idx, imgData) {
+  var canvas = $("#dice" + idx);
+  /** @type {CanvasRenderingContext2D} */
+  var ctx = canvas.getContext("2d");
+  canvas.width = imgData.width;
+  canvas.height = imgData.height;
+  ctx.putImageData(imgData, 0, 0);
 }
-exports.getBundleURL = getBundleURLCached;
-exports.getBaseURL = getBaseURL;
-},{}],"../node_modules/parcel-bundler/src/builtins/css-loader.js":[function(require,module,exports) {
-var bundle = require('./bundle-url');
-function updateLink(link) {
-  var newLink = link.cloneNode();
-  newLink.onload = function () {
-    link.remove();
-  };
-  newLink.href = link.href.split('?')[0] + '?' + Date.now();
-  link.parentNode.insertBefore(newLink, link.nextSibling);
-}
-var cssTimeout = null;
-function reloadCSS() {
-  if (cssTimeout) {
-    return;
-  }
-  cssTimeout = setTimeout(function () {
-    var links = document.querySelectorAll('link[rel="stylesheet"]');
-    for (var i = 0; i < links.length; i++) {
-      if (bundle.getBaseURL(links[i].href) === bundle.getBundleURL()) {
-        updateLink(links[i]);
+
+/**
+ * 
+ * @param {*} idx 
+ * @param {*} imgDatas 
+ * @param {Array} frames 
+ */
+function AddAnimation(idx, imgDatas, frames, cb) {
+  var canvas = document.getElementById("dice" + idx);
+  /** @type {CanvasRenderingContext2D} */
+  var ctx = canvas.getContext("2d");
+  var diceNum = Math.floor(Math.random() * 6); //产生随机数0-5
+
+  var frameIdx = 0;
+  var frameNum = frames.length;
+  var timeSeconds = 0;
+  var timeTotal = 2000;
+  var timeId = setInterval(function () {
+    var imgData = imgDatas[frames[frameIdx++ % frameNum]];
+    ctx.putImageData(imgData, 0, 0);
+    timeSeconds += 1000 / frameNum;
+    if (timeSeconds >= timeTotal) {
+      clearInterval(timeId);
+      AddImage(idx, imgDatas[diceNum]);
+      if (cb && typeof cb === 'function') {
+        cb(idx, diceNum);
       }
     }
-    cssTimeout = null;
-  }, 50);
+  }, 1000 / frameNum);
 }
-module.exports = reloadCSS;
-},{"./bundle-url":"../node_modules/parcel-bundler/src/builtins/bundle-url.js"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+
+/**
+ * 随机结束后的回调函数
+ * @param {number} diceNum 
+ */
+function ShowDiceResult(idx, diceNum) {
+  $('#diceNum' + idx).textContent = "\u9AB0\u5B50".concat(idx + 1, " = ").concat(diceNum + 1);
+  m_scoreTotal += diceNum + 1;
+  $('#total').textContent = "\u5408\u8BA1\u70B9\u6570\uFF1A".concat(m_scoreTotal, " \u70B9");
+}
+function AddDiceLine(id) {
+  var divLineItem = document.createElement('div');
+  divLineItem.className = "lineItem";
+  $("#diceContainer").appendChild(divLineItem);
+  var divCanvas = document.createElement('div');
+  divLineItem.appendChild(divCanvas);
+  var canvasEle = document.createElement('canvas');
+  divCanvas.appendChild(canvasEle);
+  canvasEle.id = "dice" + id;
+  canvasEle.className = "diceImg";
+  var divDiceNum = document.createElement('div');
+  divLineItem.appendChild(divDiceNum);
+  divDiceNum.className = "itemResult";
+  divDiceNum.id = "diceNum" + id;
+  divDiceNum.textContent = "骰子" + (id + 1) + " =";
+
+  //添加骰子
+  AddImage(id, m_imgDatas[0]);
+}
+function SelectHumanNum(button) {
+  var buttons = $('.btnSel');
+  buttons.forEach(function (btn) {
+    return btn.classList.remove('active');
+  });
+  button.classList.add('active');
+  //获得人数
+  m_humanTotal = parseInt(button.getAttribute('value'));
+  m_scoreTotal = 0;
+  m_rollTimes = 0;
+}
+},{"../assets/dice.png":"assets/dice.png","../assets/dice_on_desk.mp3":"assets/dice_on_desk.mp3"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -337,5 +449,5 @@ function hmrAcceptRun(bundle, id) {
     return true;
   }
 }
-},{}]},{},["../node_modules/parcel-bundler/src/builtins/hmr-runtime.js"], null)
-//# sourceMappingURL=/index.js.map
+},{}]},{},["../node_modules/parcel-bundler/src/builtins/hmr-runtime.js","game/dice.js"], null)
+//# sourceMappingURL=/dice.cb13b768.js.map
