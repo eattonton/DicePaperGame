@@ -1,168 +1,142 @@
-import pngDices from "./assets/dice.png"
-import mp3DiceOnDesk from "./assets/dice_on_desk.mp3"
-//封装选择器
-function $(name) {
-    //return document.querySelector(name);
-    let eles = document.querySelectorAll(name);
-    if (eles.length == 1) {
-        return eles[0];
-    }
-    return eles;
+import pngQr from "./assets/qr.png"
+import pngAnt1 from "./assets/ant1.png"
+import pngAnt2 from "./assets/ant2.png"
+import pngLeaf from "./assets/leaf.png"
+import pngBucket from "./assets/bucket.png"
+import { TW_AddLoadEvent } from "./js/twloader"
+import { Toast, Dialog } from "./js/ttui"
+import { CCrossTableData, CDrawCrossTable } from "./js/crosstable"
+import { WriteText } from "./js/textutil"
+import { DrawImage } from "./js/imageutil"
+import { GetRandQueueInRange } from "./js/math"
+
+const TT = {};
+window.game = TT;
+
+TW_AddLoadEvent(Start);
+
+//游戏规则
+
+//////////////////////
+//程序入口
+////////////////////
+function Start() {
+    TT.canvas = document.getElementById("board");
+    TT.ctx = TT.canvas.getContext("2d");
+    TT.width = TT.canvas.width;
+    TT.height = TT.canvas.height;
+
+    //添加事件
+    SetupBtnClick('btn1', () => { GoToUrl(1); });
+    SetupBtnClick('btn2', () => { CreateA4(2); });
+ 
 }
 
-var m_imgDatas = [];
-var m_diceNumber = 1;
-var m_humanTotal = 1;
-//var m_humanCurrent = 0;
-var m_rollTimes = 0;
-var m_scoreTotal = 0;
+function SetupBtnClick(btnName, cb) {
+    document.getElementById(btnName).addEventListener('click', cb);;
+}
+ 
+var m_hard = 1;
+var m_mode = 1;
+var m_move = 1;   //移动次数
 
-window.onload = () => {
-    const buttons = $('.btnSel');
-    buttons.forEach(btn => btn.onclick=()=>{
-        SelectHumanNum(btn);
+/** @type {CDrawCrossTable} */
+var m_DrawTB = null;  //绘制对象
+
+//跳转
+function GoToUrl(category){
+    if(category == 1){
+        location.href = "./dice.html";
+    }
+}
+//生成题目
+function CreateA4(hard, mode, move) {
+    m_hard = hard;
+    m_mode = mode || 1;
+    m_move = move || 1;
+    var toastDlg = new Toast({
+        text: "生成中"
+    });
+    toastDlg.Show();
+    TT.ctx.fillStyle = "white";
+    TT.ctx.fillRect(0, 0, TT.width, TT.height);
+    //title
+    WriteText("围住小蚂蚁", 7.5, 1.5, 1.0);
+    //绘制内容
+    CreateTrapAnts();
+    //二维码
+    DrawImage(pngQr, [10, 10, 150, 150],1, () => {
+        toastDlg.Close();
+        ShowImageDlg();
+    });
+}
+
+//显示生成的题目图片，长按保存
+function ShowImageDlg() {
+    let strImg = "<img ";
+    strImg += "src=" + TT.canvas.toDataURL('png', 1.0);
+    strImg += " style='width:350px;height:500px;'></img>";
+    let dlg1 = new Dialog({
+        title: "长按图片，保存下载",
+        text: strImg
     });
 
-    var canvas = $("#canvas1");
-    var ctx = canvas.getContext("2d");
+    dlg1.Show();
+}
 
-    var img1 = new Image();
-    img1.src = pngDices;
-    img1.onload = () => {
-        canvas.width = img1.width;
-        canvas.height = img1.height;
-        ctx.drawImage(img1, 0, 0, img1.width, img1.height);
-        // 提取部分图像，例如左上角 100x100 像素的区域
-        m_imgDatas = GetImages(ctx, 100, 100);
-        AddImage(0, m_imgDatas[0]);
+function CreateTrapAnts(){
+    //绘制对象
+    m_DrawTB = new CDrawCrossTable(TT.ctx);
+    //生成题目
+    let tbData = new CCrossTableData();
+    let gameData = [['A',3],['B',3],['C',4],['D',4]];
+    for(let i=0;i<=3;i++){
+        let posx = i%2==1?13:3.3;
+        let posy = parseInt(i/2)==1?13.4:5;
+        m_DrawTB.DrawTable(tbData,posx,posy);
+        //随机产生一个数组
+        let posArr = GetRandQueueInRange(gameData[i][1],0,35);
+        posArr.forEach((val)=>{
+            m_DrawTB.DrawImageAnt1(pngAnt1,...tbData.GetGridPosition(val%6,parseInt(val/6)));
+        })
+        m_DrawTB.DrawImageAnt2(pngAnt2,...tbData.GetGridPosition(5,0));
+        m_DrawTB.DrawImageLeaf(gameData[i][0],pngLeaf,...tbData.GetGridPosition(0,0));
     }
+    //写规则
+    let rule = "    小时候蹲在家门口拨弄着地上的一群小蚂蚁，能玩一下午。《围住小蚂蚁》参考\n";
+    rule +="“围住疯狂的公牛”开发，一款PNP(打印即玩)游戏。把它打印出来，用河(直线)围住\n";
+    rule += "方格中的小蚂蚁。规则就这么简单,让我们像小时候一样无忧无虑的玩吧。\n";
+    rule += "1、画小河\n";
+    rule += "    在每个回合掷3个骰子，并从中选择2个。骰子点数代表周围的水桶(黑点)编号。\n";
+    rule += "从一边一个水桶编号到另一边水桶编号结束，画一条河(直线)。请注意，小河不能\n";
+    rule += "穿过小蚂蚁中心点！正常每个水桶只能用一次。\n";
+    rule += "2、有相同点数\n";
+    rule += "    相同点数对应的水桶编号能用两次(但不超过两次)。对于两个一样的骰子，使用\n";
+    rule += "第三个骰子作为另一边。\n";
+    rule += "3、跳过\n";
+    rule += "    每个水桶(黑点)最多两条小河(直线)，否则无法再使用，或则选择放弃这次投掷，\n";
+    rule += "就需要划掉一个“水桶道具”，如果所有“水桶道具”都划完，当前方格结束。\n";
+    rule += "4、游戏结束\n";
+    rule += "    每只小蚂蚁完全单独封闭在小河内(直线)，当小蚂蚁无法再被围，就完成一个方格。\n";
+    rule += "完成最后一个方格D，游戏结束。\n";
+    rule += "5、计算分数\n";
+    rule += "   被围的蚂蚁数，剩余的水桶(黑点)数，剩余的水桶道具，按照分数公式统计。\n";
+    rule += "未完成的方格只统计被围的蚂蚁数，未使用的水桶数不计入成绩。";
+    WriteText(rule, 1, 20.2, 0.3);
 
-    //添加btn事件
-    $("#startBtn").onclick = () => {
-        m_scoreTotal = 0;
-        for (let i = 0; i < m_diceNumber; i++) {
-            AddAnimation(i, m_imgDatas, [6, 7, 8], ShowDiceResult);
-        }
-        $("#music").play();
-        $('#player').textContent = `当前玩家：${m_rollTimes % m_humanTotal + 1} 号`;
-        ++m_rollTimes;
-    }
-    $("#addLineBtn").onclick = () => {
-        AddDiceLine(m_diceNumber++);
-    }
-
-    //添加声音
-    $("#music").src = mp3DiceOnDesk;
+    //添加水桶道具
+    WriteText("水桶道具", 13.5, 20.2, 0.6);
+    DrawImage(pngBucket,[14,20.5,1,1*1.8],0,null);
+    DrawImage(pngBucket,[16,20.5,1,1*1.8],0,null);
+    DrawImage(pngBucket,[18,20.5,1,1*1.8],0,null);
+    //统计分数
+    WriteText("A-->(  ) X 3 + (  )=(   )", 13.5, 23, 0.6);
+    WriteText("B-->(  ) X 3 + (  )=(   )", 13.5, 23.8, 0.6);
+    WriteText("C-->(  ) X 4 + (  )=(   )", 13.5, 24.6, 0.6);
+    WriteText("D-->(  ) X 4 + (  )=(   )", 13.5, 25.4, 0.6);
+    WriteText("被围蚂蚁", 14.4, 26, 0.3);
+    WriteText("未用黑点", 16.8, 26, 0.3);
+    WriteText("剩余水\n桶道具", 13.5, 26.8, 0.5);
+    WriteText("(  ) X 3 =(   )", 15.8, 27.2, 0.6);
+    WriteText("总分...(     )", 15.2, 28.6, 0.8);
 }
-
-/**
- * 
- * @param {CanvasRenderingContext2D} ctx 
- * @param {number} sw 
- * @param {number} sh 
- */
-function GetImages(ctx, sw, sh) {
-    let imgDatas = [];
-    for (let sx = 0; sx < ctx.canvas.width; sx += sw) {
-        for (let sy = 0; sy < ctx.canvas.height; sy += sh) {
-            let imgData = ctx.getImageData(sx, sy, sw, sh);
-            imgDatas.push(imgData);
-        }
-    }
-
-    return imgDatas;
-}
-
-/**
- * 插入一个Sprite
- * @param {number} idx 
- * @param {ImageData} imgData 
- */
-function AddImage(idx, imgData) {
-    var canvas = $("#dice" + idx);
-    /** @type {CanvasRenderingContext2D} */
-    var ctx = canvas.getContext("2d");
-
-    canvas.width = imgData.width;
-    canvas.height = imgData.height;
-
-    ctx.putImageData(imgData, 0, 0);
-
-}
-
-/**
- * 
- * @param {*} idx 
- * @param {*} imgDatas 
- * @param {Array} frames 
- */
-function AddAnimation(idx, imgDatas, frames, cb) {
-    var canvas = document.getElementById("dice" + idx);
-    /** @type {CanvasRenderingContext2D} */
-    var ctx = canvas.getContext("2d");
-
-    var diceNum = Math.floor(Math.random() * 6);//产生随机数0-5
-
-    let frameIdx = 0;
-    let frameNum = frames.length;
-    let timeSeconds = 0;
-    let timeTotal = 2000;
-    let timeId = setInterval(() => {
-        let imgData = imgDatas[frames[(frameIdx++) % frameNum]];
-        ctx.putImageData(imgData, 0, 0);
-        timeSeconds += 1000 / frameNum;
-        if (timeSeconds >= timeTotal) {
-            clearInterval(timeId);
-            AddImage(idx, imgDatas[diceNum]);
-            if (cb && typeof cb === 'function') {
-                cb(idx, diceNum);
-            }
-        }
-    }, 1000 / frameNum);
-    
-}
-
-/**
- * 随机结束后的回调函数
- * @param {number} diceNum 
- */
-function ShowDiceResult(idx, diceNum) {
-    $('#diceNum' + idx).textContent = `骰子${idx + 1} = ${diceNum + 1}`;
-    m_scoreTotal += diceNum+1;
-    $('#total').textContent =`合计点数：${m_scoreTotal} 点`;
-}
-
-function AddDiceLine(id) {
-    let divLineItem = document.createElement('div');
-    divLineItem.className = "lineItem";
-    $("#diceContainer").appendChild(divLineItem);
-
-    let divCanvas = document.createElement('div');
-    divLineItem.appendChild(divCanvas);
-    let canvasEle = document.createElement('canvas');
-    divCanvas.appendChild(canvasEle);
-    canvasEle.id = "dice" + id;
-    canvasEle.className = "diceImg";
-
-    let divDiceNum = document.createElement('div');
-    divLineItem.appendChild(divDiceNum);
-    divDiceNum.className = "itemResult";
-    divDiceNum.id = "diceNum" + id;
-    divDiceNum.textContent = "骰子" + (id + 1) + " =";
-
-    //添加骰子
-    AddImage(id, m_imgDatas[0]);
-}
-
-function SelectHumanNum(button) {
-    const buttons = $('.btnSel');
-    buttons.forEach(btn => btn.classList.remove('active'));
-    button.classList.add('active');
-    //获得人数
-    m_humanTotal =parseInt(button.getAttribute('value'));
- 
-    m_scoreTotal = 0;
-    m_rollTimes = 0;
-}
-
-
