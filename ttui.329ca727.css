@@ -16,7 +16,6 @@
 .ttform {
   display: block;
   width: 350px;
-  height: 580px;
   background: #fff;
   border: 1px solid #000;
   padding: 0;
@@ -52,7 +51,7 @@
 }
 
 .ttform .content {
-  padding: 4px;
+  padding: 0px;
   text-align: left;
   background-color: #fff;
   min-height: 130px;
