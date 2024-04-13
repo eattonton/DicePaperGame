@@ -1,45 +1,74 @@
+import TT from "./tt"
+
 //绘制直线
 function DrawLine(x1, y1, x2, y2, wid, scale, strColor = "black", strStyle = "solid") {
     scale = scale || 60;
     wid = wid || 0.1;
-    window.game.ctx.lineWidth = wid * scale;
-    window.game.ctx.strokeStyle = strColor || "black";
+    TT.ctx.lineWidth = wid * scale;
+    TT.ctx.strokeStyle = strColor || "black";
     //开始一个新的绘制路径
-    window.game.ctx.beginPath();
+    TT.ctx.beginPath();
     if (strStyle == "dash") {
-        window.game.ctx.setLineDash([0.1 * scale, 0.3 * scale]); // 设置虚线样式
-        window.game.ctx.lineDashOffset = 0; // 设置虚线起始偏移量
+        TT.ctx.setLineDash([0.1 * scale, 0.3 * scale]); // 设置虚线样式
+        TT.ctx.lineDashOffset = 0; // 设置虚线起始偏移量
     }
     else {
-        window.game.ctx.setLineDash([]); // 设置实线样式
+        TT.ctx.setLineDash([]); // 设置实线样式
     }
-    window.game.ctx.moveTo(x1 * scale, y1 * scale);
-    window.game.ctx.lineTo(x2 * scale, y2 * scale);
-    window.game.ctx.lineCap = "square";
-    window.game.ctx.stroke();
+    TT.ctx.moveTo(x1 * scale, y1 * scale);
+    TT.ctx.lineTo(x2 * scale, y2 * scale);
+    TT.ctx.lineCap = "square";
+    TT.ctx.stroke();
     //关闭当前的绘制路径
-    window.game.ctx.closePath();
+    TT.ctx.closePath();
 }
 
 //绘制圆
 function DrawCircle(cx, cy, radius, wid, scale, strColor, strFill) {
     scale = scale || 60;
     wid = wid || 0.1;
-    window.game.ctx.beginPath();
-    window.game.ctx.setLineDash([]); // 设置实线样式
-    window.game.ctx.lineWidth = wid * scale;
-    window.game.ctx.strokeStyle = strColor || "black";
-    window.game.ctx.arc(cx * scale, cy * scale, radius * scale, 0, 2 * Math.PI, false);
-    window.game.ctx.stroke();
+    TT.ctx.beginPath();
+    TT.ctx.setLineDash([]); // 设置实线样式
+    TT.ctx.lineWidth = wid * scale;
+    TT.ctx.strokeStyle = strColor || "black";
+    TT.ctx.arc(cx * scale, cy * scale, radius * scale, 0, 2 * Math.PI, false);
+    TT.ctx.stroke();
     if (strFill) {
-        window.game.ctx.fillStyle = strFill || '#9fd9ef';
-        window.game.ctx.fill();
+        TT.ctx.fillStyle = strFill || '#9fd9ef';
+        TT.ctx.fill();
     }
     //关闭当前的绘制路径
-    window.game.ctx.closePath();
+    TT.ctx.closePath();
+}
+
+//绘制矩形
+function DrawRect(x, y, w, h, wid, scale, strColor, strFill) {
+    scale = scale || 60;
+    wid = wid || 0.1;
+    if (strFill != "") {
+        /*填充矩形方法：fillRect(x,y,w,h)*/
+       // this.context2D.fillStyle = 'blue';
+       // this.context2D.fillRect(x * scale, y * scale, w * scale, h * scale);
+    }
+    /*描边矩形方法：strokeRect(x,y,w,h)*/
+    TT.ctx.strokeStyle = strColor || "black";
+    TT.ctx.lineWidth = wid * scale;
+    TT.ctx.strokeRect(x * scale, y * scale, w * scale, h * scale);
+}
+
+ //绘制方格
+ function DrawSquare(x0, y0, width, strColor = "black", strStyle = "solid") {
+    let linW = 0.04;
+    let linScale = 60;
+    DrawLine(x0, y0, x0 + width, y0, linW, linScale, strColor, strStyle);
+    DrawLine(x0 + width, y0, x0 + width, y0 + width, linW, linScale, strColor, strStyle);
+    DrawLine(x0 + width, y0 + width, x0, y0 + width, linW, linScale, strColor, strStyle);
+    DrawLine(x0, y0 + width, x0, y0, linW, linScale, strColor, strStyle);
 }
 
 export{
     DrawLine,
-    DrawCircle
+    DrawCircle,
+    DrawRect,
+    DrawSquare
 }

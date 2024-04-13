@@ -1,3 +1,7 @@
+import { DrawImage } from "./imageutil";
+import { WriteText } from "./textutil";
+import { DrawCircle, DrawLine, DrawRect, DrawSquare } from "./geometryutil";
+
 class CTablePoint {
     x = 0;
     y = 0;
@@ -50,31 +54,43 @@ class CTableData {
     /** @type {CTableCellData[]} */
     cells = [];
     size = 1;
+    col = 1;
+    row = 1;
     width = 1;
     height = 1;
+    cwidth = 1;
+    rwidth = 1;
 
-    csize = 1;
-
-    constructor(size, w, h) {
-        this.size = size || 1;
-        this.width = this.height = w;
-        this.height = h || this.height;
-
-        let cw = this.width / this.size;
-        let ch = this.height / this.size;
-        //单元格 大小
-        this.csize = cw;
-
+    constructor(params) {
+        this.size = this.col = this.row = params["size"] || 1;
+        if ("col" in params) {
+            this.col = params["col"];
+        }
+        if ("row" in params) {
+            this.row = params["row"];
+        }
+        if ("width" in params) {
+            this.width = this.height = params["width"];
+            this.height = params["height"] || this.height;
+            this.cwidth = this.width / this.col;
+            this.cheight = this.height / this.row;
+        }
+        if ("cwidth" in params) {
+            this.cwidth = this.cheight = params["cwidth"];
+            this.cheight = params["cheight"] || this.cheight;
+            this.width = this.cwidth * this.col;
+            this.height = this.cheight * this.row;
+        }
         //划分单元格
-        for (let i = 0; i < this.size; i++) {
-            for (let j = 0; j < this.size; j++) {
-                this.cells.push(new CTableCellData(i, j, cw, ch));
+        for (let i = 0; i < this.row; i++) {
+            for (let j = 0; j < this.col; j++) {
+                this.cells.push(new CTableCellData(j, i, this.cwidth, this.cheight));
             }
         }
     }
 
     GetCellNum() {
-        return this.size * this.size;
+        return this.col * this.row;
     }
 
     GetCellByIndex(idx) {
@@ -82,7 +98,7 @@ class CTableData {
     }
 
     GetCellByRowCol(r, c) {
-        let idx = r * this.size + c;
+        let idx = r * this.row + c;
         return this.GetCellByIndex(idx);
     }
 
@@ -105,9 +121,9 @@ class CTableData {
      */
     GetCellsByRow(iRow) {
         let arr1 = [];
-        for (let i = 0; i < this.size; i++) {
+        for (let i = 0; i < this.col; i++) {
             //按列读取
-            let idx = this.size*iRow + i;
+            let idx = this.col * iRow + i;
             arr1.push(this.GetCellByIndex(idx));
         }
         return arr1;
@@ -118,11 +134,11 @@ class CTableData {
      * @param {*} iCol 
      * @returns 
      */
-    GetCellsByCol(iCol){
+    GetCellsByCol(iCol) {
         let arr1 = [];
-        for(let i=0;i<this.size;i++){
+        for (let i = 0; i < this.row; i++) {
             //按行读取
-            let idx = this.size * i + iCol;
+            let idx = this.col * i + iCol;
             arr1.push(this.GetCellByIndex(idx));
         }
         return arr1;
@@ -134,34 +150,29 @@ class CTableData {
  * 绘制表格
  */
 class CDrawTable {
-    /** @type {CanvasRenderingContext2D} */
-    context2D = null;
-    boardWidth = 0;
-    boardHeight = 0;
+    /** @type {CTableData} */
+    m_tbData = null;
+    m_posX = 0;
+    m_posY = 0;
 
-    constructor(ctx) {
-        this.context2D = ctx;
-        this.boardWidth = ctx.canvas.width;
-        this.boardHeight = ctx.canvas.height;
-    }
-    ClearRect() {
-        this.context2D.fillStyle = "white";
-        this.context2D.fillRect(0, 0, this.boardWidth, this.boardHeight);
+    constructor(params) {
+        this.m_tbData = params["data"];
+        this.posx = params["x"];
+        this.posy = params["y"];
     }
 
     /**
      * 
-     * @param {CTableData} tbObj 
-     * @param {number} x0
-     * @param {number} y0
-     * @param {*} strColor 
      * @param {*} strStyle 
      */
-    DrawTable(tbObj, x0, y0, strColor = 'black', strStyle = 'solid') {
-        for (let i = 0; i < tbObj.GetCellNum(); i++) {
-            let tbCell = tbObj.GetCellByIndex(i);
-            // this.DrawTBCell(tbCell.GetPoints(x0, y0), strColor, strStyle);
-            this.DrawRect(...tbCell.GetRect(x0, y0), 0.01, 0, null, tbCell.fillColor);
+    DrawTable(strStyle = 'solid') {
+        for (let i = 0; i < this.m_tbData.GetCellNum(); i++) {
+            let cell = this.m_tbData.GetCellByIndex(i);
+            if (strStyle == "style2") {
+                this.DrawTableStyle2(cell.GetPoints(this.posx, this.posy));
+            } else {
+                DrawRect(...cell.GetRect(this.posx, this.posy), 0.01, 0, null, cell.fillColor);
+            }
         }
     }
     /**
@@ -170,101 +181,30 @@ class CDrawTable {
      * @param {*} strColor 
      * @param {*} strStyle 
      */
-    DrawTBCell(pts, strColor = "black", strStyle = "solid") {
-        let linW = 0.04;
-        let linScale = 60;
+    DrawTableStyle2(pts, strColor = "black", strStyle = "solid") {
+        let segLen = 0.32;
+        let lineWidth = 0.03;
+        DrawLine(pts[0].x, pts[0].y, pts[0].x + segLen, pts[0].y, lineWidth);
+        DrawLine(pts[0].x, pts[0].y, pts[0].x, pts[0].y + segLen, lineWidth);
 
-        for (let i = 0; i < pts.length; i++) {
-            if (i == 0) {
-                this.DrawLine(pts[pts.length - 1].x, pts[pts.length - 1].y, pts[i].x, pts[i].y, linW, linScale, strColor, strStyle);
-            } else {
-                this.DrawLine(pts[i - 1].x, pts[i - 1].y, pts[i].x, pts[i].y, linW, linScale, strColor, strStyle);
-            }
-        }
-    }
-    //绘制方格
-    DrawSquare(x0, y0, width, strColor = "black", strStyle = "solid") {
-        let linW = 0.04;
-        let linScale = 60;
-        this.DrawLine(x0, y0, x0 + width, y0, linW, linScale, strColor, strStyle);
-        this.DrawLine(x0 + width, y0, x0 + width, y0 + width, linW, linScale, strColor, strStyle);
-        this.DrawLine(x0 + width, y0 + width, x0, y0 + width, linW, linScale, strColor, strStyle);
-        this.DrawLine(x0, y0 + width, x0, y0, linW, linScale, strColor, strStyle);
-    }
-    //绘制文本
-    WriteText(str1, x, y, hei, scale) {
-        scale = scale || 60;
-        hei = hei * scale;
-        let fontHei = hei + "px";
-        this.context2D.font = "normal " + fontHei + " Arial";
-        this.context2D.fillStyle = "#000000";
-        let lines = str1.split('\n');
-        for (let j = 0; j < lines.length; j++) {
-            this.context2D.fillText(lines[j], x * scale, y * scale + (j * hei));
-        }
-    }
-    //绘制直线
-    DrawLine(x1, y1, x2, y2, wid = 0.04, scale = 60, strColor = "black", strStyle = "solid") {
-        this.context2D.lineWidth = wid * scale;
-        this.context2D.strokeStyle = strColor || "black";
-        //开始一个新的绘制路径
-        this.context2D.beginPath();
-        if (strStyle == "dash") {
-            this.context2D.setLineDash([0.1 * scale, 0.3 * scale]); // 设置虚线样式
-            this.context2D.lineDashOffset = 0; // 设置虚线起始偏移量
-        }
-        else {
-            this.context2D.setLineDash([]); // 设置实线样式
-        }
-        this.context2D.moveTo(x1 * scale, y1 * scale);
-        this.context2D.lineTo(x2 * scale, y2 * scale);
-        this.context2D.lineCap = "square";
-        this.context2D.stroke();
-        //关闭当前的绘制路径
-        this.context2D.closePath();
-    }
-    //绘制圆
-    DrawCircle(cx, cy, radius, wid, scale, strColor, strFill) {
-        scale = scale || 60;
-        wid = wid || 0.1;
-        this.context2D.beginPath();
-        this.context2D.setLineDash([]); // 设置实线样式
-        this.context2D.lineWidth = wid * scale;
-        this.context2D.strokeStyle = strColor || "black";
-        this.context2D.arc(cx * scale, cy * scale, radius * scale, 0, 2 * Math.PI, false);
-        this.context2D.stroke();
-        if (strFill) {
-            this.context2D.fillStyle = strFill || '#9fd9ef';
-            this.context2D.fill();
-        }
-        //关闭当前的绘制路径
-        this.context2D.closePath();
+        DrawLine(pts[1].x, pts[1].y, pts[1].x - segLen, pts[1].y, lineWidth);
+        DrawLine(pts[1].x, pts[1].y, pts[1].x, pts[1].y + segLen, lineWidth);
+
+        DrawLine(pts[2].x, pts[2].y, pts[2].x - segLen, pts[2].y, lineWidth);
+        DrawLine(pts[2].x, pts[2].y, pts[2].x, pts[2].y - segLen, lineWidth);
+
+        DrawLine(pts[3].x, pts[3].y, pts[3].x + segLen, pts[3].y, lineWidth);
+        DrawLine(pts[3].x, pts[3].y, pts[3].x, pts[3].y - segLen, lineWidth);
     }
 
-    //绘制矩形
-    DrawRect(x, y, w, h, wid, scale, strColor, strFill) {
-        scale = scale || 60;
-        wid = wid || 0.1;
-        if (strFill != "") {
-            /*填充矩形方法：fillRect(x,y,w,h)*/
-           // this.context2D.fillStyle = 'blue';
-           // this.context2D.fillRect(x * scale, y * scale, w * scale, h * scale);
-        }
-        /*描边矩形方法：strokeRect(x,y,w,h)*/
-        this.context2D.strokeStyle = strColor || "black";
-        this.context2D.lineWidth = wid * scale;
-        this.context2D.strokeRect(x * scale, y * scale, w * scale, h * scale);
-    }
-    //绘制图片
-    DrawImage(img0, params, cb) {
-        let imgObj = new Image();
-        imgObj.src = img0;
-        imgObj.onload = () => {
-            this.context2D.drawImage(imgObj, params[0], params[1], params[2], params[3]);
-            if (typeof cb == "function") {
-                cb();
-            }
-        };
+    DrawCellImage(idx, imgObj) {
+        let cell = this.m_tbData.GetCellByIndex(idx);
+        let sizes = cell.GetRect(this.posx, this.posy);
+        sizes[0] = sizes[0]+0.2;
+        sizes[1] = sizes[1]+0.2;
+        sizes[2] = sizes[2]*0.8;
+        sizes[3] = sizes[3]*0.8;
+        DrawImage(imgObj, sizes, 60);
     }
 }
 
