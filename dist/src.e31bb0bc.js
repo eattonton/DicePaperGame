@@ -541,6 +541,35 @@ var Toast = exports.Toast = /*#__PURE__*/function (_UIBase5) {
   }]);
   return Toast;
 }(UIBase);
+},{}],"js/imageutil.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.DrawImage = DrawImage;
+var _tt = _interopRequireDefault(require("./tt"));
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+//绘制图片
+function DrawImage(img0, params, scale, cb) {
+  scale = scale || 60;
+  var imgObj = new Image();
+  imgObj.src = img0;
+  imgObj.onload = function () {
+    _tt.default.ctx.drawImage(imgObj, params[0] * scale, params[1] * scale, params[2] * scale, params[3] * scale);
+    if (typeof cb == "function") {
+      cb();
+    }
+  };
+}
+},{"./tt":"js/tt.js"}],"assets/ant1.png":[function(require,module,exports) {
+module.exports = "/ant1.e3b887ef.png";
+},{}],"assets/ant2.png":[function(require,module,exports) {
+module.exports = "/ant2.f2481154.png";
+},{}],"assets/leaf.png":[function(require,module,exports) {
+module.exports = "/leaf.0558c079.png";
+},{}],"assets/bucket.png":[function(require,module,exports) {
+module.exports = "/bucket.06110781.png";
 },{}],"js/textutil.js":[function(require,module,exports) {
 "use strict";
 
@@ -615,36 +644,7 @@ function SplitByLength(str1, len) {
   }
   return arr1;
 }
-},{"./tt":"js/tt.js"}],"js/imageutil.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.DrawImage = DrawImage;
-var _tt = _interopRequireDefault(require("./tt"));
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-//绘制图片
-function DrawImage(img0, params, scale, cb) {
-  scale = scale || 60;
-  var imgObj = new Image();
-  imgObj.src = img0;
-  imgObj.onload = function () {
-    _tt.default.ctx.drawImage(imgObj, params[0] * scale, params[1] * scale, params[2] * scale, params[3] * scale);
-    if (typeof cb == "function") {
-      cb();
-    }
-  };
-}
-},{"./tt":"js/tt.js"}],"assets/ant1.png":[function(require,module,exports) {
-module.exports = "/ant1.e3b887ef.png";
-},{}],"assets/ant2.png":[function(require,module,exports) {
-module.exports = "/ant2.f2481154.png";
-},{}],"assets/leaf.png":[function(require,module,exports) {
-module.exports = "/leaf.0558c079.png";
-},{}],"assets/bucket.png":[function(require,module,exports) {
-module.exports = "/bucket.06110781.png";
-},{}],"js/geometryutil.js":[function(require,module,exports) {
+},{"./tt":"js/tt.js"}],"js/geometryutil.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1383,90 +1383,43 @@ var CDrawTable = exports.CDrawTable = /*#__PURE__*/function () {
 }();
 },{"./imageutil":"js/imageutil.js","./textutil":"js/textutil.js","./geometryutil":"js/geometryutil.js"}],"assets/fruits.json":[function(require,module,exports) {
 module.exports = ["苹果，水果之冠，色泽鲜艳，口感脆嫩多汁。它富含营养，既能满足味蕾，又能滋养身心。无论是直接食用，还是制作成果汁、甜点，都能展现其独特的魅力。苹果还象征着平安、健康，常被人们作为礼物赠送，寓意美好。在四季中，苹果总能带给我们无尽的惊喜与满足。", "香蕉，香甜可口，形状弯曲如月，皮薄肉嫩。它富含钾元素，能迅速补充能量，是运动员和劳累者的理想食品。香蕉口感软糯，老少皆宜，既可直接剥皮食用，也可制作甜品或混入果汁中。在热带地区，香蕉更是常见的水果，深受人们喜爱。", "桃子，色泽艳丽，果肉鲜美多汁，是夏季的佳果。它含有丰富的维生素和矿物质，不仅滋味甜美，更有滋补养身之效。桃子的形状犹如心形，寓意着爱情的甜蜜和美好。无论是鲜食还是制作成罐头、果酱，桃子都能展现出其独特的魅力，深受人们喜爱。", "西瓜，夏日之果，皮绿如翡翠，肉红似玛瑙。其味甜而多汁，清凉解暑，为夏季之佳品。每一口都仿佛带有自然的清香，甜而不腻，清爽宜人。西瓜不仅口感绝佳，且富含营养，是健康饮食的理想选择。在炎炎夏日，一片西瓜，便是清凉的享受。", "橙子，色泽鲜亮，皮薄肉厚，香甜可口。每一颗橙肉都饱含自然的甜蜜，清新而不失浓郁。它富含维生素C，既美味又健康，是水果中的佳品。在闲暇之余，剥一颗橙子，那香甜的汁液瞬间溢满口腔，让人回味无穷。", "牛油果，外形独特，表皮粗糙而肉质细腻。它富含不饱和脂肪酸，营养丰富，被誉为“森林奶油”。口感醇厚，略带坚果香气，既可直接食用，又可制作美食。无论是健康饮食还是味蕾享受，牛油果都是不错的选择。", "柠檬，色泽鲜亮，形如小果，酸爽可口。它富含维生素C，具有独特的清新香气，是调味佳品。无论是泡茶、烹饪还是制作饮品，柠檬都能为食物增添一抹清新的风味。它的酸味既提神醒脑，又开胃消食，是健康生活的良伴。", "火龙果，外形艳丽，果皮鲜红，内藏晶莹果肉。口感清甜，带有淡淡花香，是夏日消暑的佳品。它富含营养，既美味又健康，深受人们喜爱。无论是直接食用还是制作甜品，火龙果都能带来别样的味蕾享受。", "猕猴桃，外皮绒毛覆盖，翠绿诱人，肉质细嫩多汁，口感酸甜适中，富含丰富维生素C，是营养满满的水果佳品。其独特的风味和营养价值，让人一尝难忘，是健康生活的理想选择。", "芒果，色泽金黄，形似弯月，果肉饱满多汁，口感细腻甜美。它散发着独特的香气，令人垂涎欲滴。无论是直接食用还是制作甜品，芒果都能带来浓郁的热带风情，是夏日水果中的佼佼者。", "榴莲，外表坚硬带刺，内在却绵软香甜。其独特的浓郁香气，虽有人爱之如命，也有人避之不及。但一旦尝试，那绵密的口感和深邃的甜香，定会让人难以忘怀。榴莲不仅美味，还富含营养，是热带水果中的珍品。", "石榴，红艳艳的果皮内藏着颗颗晶莹的籽粒，宛如宝石般闪耀。口感酸甜多汁，清新爽口，是秋季的美味佳品。石榴不仅美味，还富含营养，寓意着多子多福，是节日庆典的吉祥果。", "山竹，外皮紫灰相间，厚实坚硬，内藏雪白嫩滑的果肉，清甜多汁，口感细腻，酸甜适中。被誉为“果中皇后”，营养丰富，尤其富含维生素，是热带水果中的珍品。品尝山竹，仿佛置身于热带雨林的清新之中，令人心旷神怡。", "草莓，色泽鲜艳，形如心形，果肉多汁，口感酸甜可口。它散发着迷人的香气，让人一闻便心生欢喜。草莓不仅美味，还富含维生素C，是健康水果的代表。每一颗草莓都如同小小的红宝石，为人们的味蕾带来无尽的享受。", "杨桃，外形独特，翠绿鹅黄，果肉清脆细腻，香甜可口。它富含蔗糖、果糖等多种营养素，滋味丰盈充沛，既可直接食用，又可用于烹饪调味。无论是口感还是营养价值，杨桃都堪称水果中的佳品，深受人们喜爱。", "梨，皮薄肉嫩，汁多味甜，清脆爽口。它富含维生素和矿物质，具有润肺止咳、清热解暑的功效。无论是直接食用还是炖煮成汤，梨都能展现出其独特的口感和营养价值，是秋季水果的佼佼者。", "菠萝，外形独特，表皮金黄，果肉酸甜可口，清香扑鼻。它富含维生素和矿物质，既可直接食用，又可制作各种美食。菠萝的鲜美口感和丰富营养让人欲罢不能，是热带水果中的佼佼者，深受人们喜爱。", "胡萝卜，色泽鲜艳，形如小棒，口感脆嫩，甜中带微辛。它富含胡萝卜素，营养丰富，被誉为“小人参”。生吃、熟食皆相宜，既可直接食用，又可烹饪成各种美味佳肴。胡萝卜，美味又健康，是餐桌上的常客。"];
-},{}],"index.js":[function(require,module,exports) {
+},{}],"game/fruits.js":[function(require,module,exports) {
 "use strict";
 
-var _qr = _interopRequireDefault(require("./assets/qr.png"));
-var _tt = _interopRequireDefault(require("./js/tt"));
-var _twloader = require("./js/twloader");
-var _ttui = require("./js/ttui");
-var _textutil = require("./js/textutil");
-var _imageutil = require("./js/imageutil");
-var _trapant = require("./game/trapant");
-var _fruits = _interopRequireDefault(require("./assets/fruits.png"));
-var _russia = _interopRequireDefault(require("./assets/russia.png"));
-var _logo = _interopRequireDefault(require("./assets/logo.png"));
-var _sprite = require("./js/sprite");
-var _table = require("./js/table");
-var _fruits2 = _interopRequireDefault(require("./assets/fruits.json"));
-var _math = require("./js/math");
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.DrawBingGoFruits = DrawBingGoFruits;
+var _fruits = _interopRequireDefault(require("../assets/fruits.png"));
+var _russia = _interopRequireDefault(require("../assets/russia.png"));
+var _logo = _interopRequireDefault(require("../assets/logo.png"));
+var _textutil = require("../js/textutil");
+var _imageutil = require("../js/imageutil");
+var _sprite = require("../js/sprite");
+var _table = require("../js/table");
+var _fruits2 = _interopRequireDefault(require("../assets/fruits.json"));
+var _math = require("../js/math");
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-var A4Direction = "v";
-var A4Width = 1240;
-var A4Height = 1754;
-(0, _twloader.TW_AddLoadEvent)(Start);
-
-//////////////////////
-//程序入口
-////////////////////
-function Start() {
-  //添加事件
-  SetupBtnClick('btn1', function () {
-    GoToUrl(1);
-  });
-  SetupBtnClick('btn2', function () {
-    CreateA4(2);
-  });
-  SetupBtnClick('btn3', function () {
-    CreateA4(3);
-  });
-}
-function SetupBtnClick(btnName, cb) {
-  document.getElementById(btnName).addEventListener('click', cb);
-  ;
-}
-var m_mode = 1;
 var spriteA;
 var spriteB;
 var spriteLogo;
-var toastDlg;
-//跳转
-function GoToUrl(category) {
-  if (category == 1) {
-    location.href = "./dice.html";
-  }
-}
-//生成题目
-function CreateA4(mode) {
-  m_mode = mode || 1;
-  toastDlg = new _ttui.Toast({
-    text: "生成中"
-  });
-  toastDlg.Show();
-  if (m_mode == 2) {
-    InitCanvas('v');
-    //绘制围住小蚂蚁
-    (0, _trapant.CreateTrapAnts)();
-    ShowQr([10, 10, 150, 150], 1);
-  } else if (m_mode == 3) {
-    InitCanvas('w');
-    //槟果消消乐
-    if (spriteA == undefined) {
-      (0, _sprite.LoadMultiImages)([_fruits.default, _russia.default, _logo.default], function (ctxArr) {
-        spriteA = new _sprite.TTSprite(ctxArr[0], {
-          w: 118,
-          h: 118
-        });
-        spriteB = new _sprite.TTSprite(ctxArr[1]);
-        spriteLogo = new _sprite.TTSprite(ctxArr[2]);
-        CreateBingGoFruits();
+function DrawBingGoFruits(cb) {
+  //槟果消消乐
+  if (spriteA == undefined) {
+    (0, _sprite.LoadMultiImages)([_fruits.default, _russia.default, _logo.default], function (ctxArr) {
+      spriteA = new _sprite.TTSprite(ctxArr[0], {
+        w: 118,
+        h: 118
       });
-      return;
-    }
-    CreateBingGoFruits();
+      spriteB = new _sprite.TTSprite(ctxArr[1]);
+      spriteLogo = new _sprite.TTSprite(ctxArr[2]);
+      CreateBingGoFruits(cb);
+    });
+    return;
   }
+  CreateBingGoFruits(cb);
 }
-function CreateBingGoFruits() {
+function CreateBingGoFruits(cb) {
   var fruitIndex = (0, _math.RandomInt)(0, 17);
   //绘制表格
   var tbData = new _table.CTableData({
@@ -1514,8 +1467,88 @@ function CreateBingGoFruits() {
   (0, _textutil.WriteText)((0, _textutil.SplitByLength)(_fruits2.default[fruitIndex], 35), 17.3, 6.0, 0.32);
   //logo
   (0, _imageutil.DrawImage)(spriteLogo.imgs[0], [18.6, 18.7, 6.2, 1.6]);
-  //结束绘制
-  ShowQr([1500, 1080, 150, 150], 1);
+  //结束运行函数
+  if (typeof cb == "function") {
+    cb();
+  }
+}
+},{"../assets/fruits.png":"assets/fruits.png","../assets/russia.png":"assets/russia.png","../assets/logo.png":"assets/logo.png","../js/textutil":"js/textutil.js","../js/imageutil":"js/imageutil.js","../js/sprite":"js/sprite.js","../js/table":"js/table.js","../assets/fruits.json":"assets/fruits.json","../js/math":"js/math.js"}],"assets/numbersflip.jpg":[function(require,module,exports) {
+module.exports = "/numbersflip.29d9609a.jpg";
+},{}],"index.js":[function(require,module,exports) {
+"use strict";
+
+var _qr = _interopRequireDefault(require("./assets/qr.png"));
+var _tt = _interopRequireDefault(require("./js/tt"));
+var _twloader = require("./js/twloader");
+var _ttui = require("./js/ttui");
+var _imageutil = require("./js/imageutil");
+var _trapant = require("./game/trapant");
+var _fruits = require("./game/fruits");
+var _numbersflip = _interopRequireDefault(require("./assets/numbersflip.jpg"));
+var _sprite = require("./js/sprite");
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var A4Direction = "v";
+var A4Width = 1240;
+var A4Height = 1754;
+(0, _twloader.TW_AddLoadEvent)(Start);
+
+//////////////////////
+//程序入口
+////////////////////
+function Start() {
+  //添加事件
+  SetupBtnClick('btn1', function () {
+    GoToUrl(1);
+  });
+  SetupBtnClick('btn2', function () {
+    CreateA4(2);
+  });
+  SetupBtnClick('btn3', function () {
+    CreateA4(3);
+  });
+  SetupBtnClick('btn4', function () {
+    CreateA4(4);
+  });
+}
+function SetupBtnClick(btnName, cb) {
+  document.getElementById(btnName).addEventListener('click', cb);
+  ;
+}
+var m_mode = 1;
+var toastDlg;
+//跳转
+function GoToUrl(category) {
+  if (category == 1) {
+    location.href = "./dice.html";
+  }
+}
+//生成题目
+function CreateA4(mode) {
+  m_mode = mode || 1;
+  toastDlg = new _ttui.Toast({
+    text: "生成中"
+  });
+  toastDlg.Show();
+  if (m_mode == 2) {
+    InitCanvas('v');
+    //绘制围住小蚂蚁
+    (0, _trapant.CreateTrapAnts)();
+    ShowQr([10, 10, 150, 150], 1);
+  } else if (m_mode == 3) {
+    InitCanvas('w');
+    (0, _fruits.DrawBingGoFruits)(function () {
+      //结束绘制
+      ShowQr([1500, 1080, 150, 150], 1);
+    });
+  } else if (m_mode == 4) {
+    InitCanvas('v');
+    (0, _sprite.LoadMultiImages)([_numbersflip.default], function (ctxArr) {
+      var spriteA = new _sprite.TTSprite(ctxArr[0]);
+      (0, _imageutil.DrawImage)(spriteA.imgs[0], [0, 0, 1240, 1754], 1, function () {
+        ShowQr([10, 10, 150, 150], 1);
+      });
+    });
+  }
 }
 function ShowQr(params) {
   var scale = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 60;
@@ -1568,7 +1601,7 @@ function ShowImageDlg() {
   });
   dlg1.Show();
 }
-},{"./assets/qr.png":"assets/qr.png","./js/tt":"js/tt.js","./js/twloader":"js/twloader.js","./js/ttui":"js/ttui.js","./js/textutil":"js/textutil.js","./js/imageutil":"js/imageutil.js","./game/trapant":"game/trapant.js","./assets/fruits.png":"assets/fruits.png","./assets/russia.png":"assets/russia.png","./assets/logo.png":"assets/logo.png","./js/sprite":"js/sprite.js","./js/table":"js/table.js","./assets/fruits.json":"assets/fruits.json","./js/math":"js/math.js"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"./assets/qr.png":"assets/qr.png","./js/tt":"js/tt.js","./js/twloader":"js/twloader.js","./js/ttui":"js/ttui.js","./js/imageutil":"js/imageutil.js","./game/trapant":"game/trapant.js","./game/fruits":"game/fruits.js","./assets/numbersflip.jpg":"assets/numbersflip.jpg","./js/sprite":"js/sprite.js"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -1593,7 +1626,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "6461" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "14809" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
